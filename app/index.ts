@@ -49,7 +49,8 @@ const participantSchema = new Schema({
 const projectSchema = new Schema({
     name: String,
     description: String,
-    team: { students: [participantSchema], coaches: [participantSchema] }
+    students: [participantSchema], 
+    coaches: [participantSchema] 
 });
 const Partner = model('Partner', partnerSchema);
 const Participant = model('Participant', participantSchema);
@@ -131,35 +132,34 @@ async function main() {
         await partner.updateOne(partner, {upsert: true});
     }
 
-    console.log(participants)
-
     let rawProjects = data.projects;
     for (let i = 0; i < rawProjects.length; i++) {
         let rawProject = rawProjects[i];
         let projectStudents : Array<Document> = [];
         let projectCoaches : Array<Document> = [];
 
-        rawProject.team.students.forEach((studentSlug : string) => {
-            console.log(studentSlug)
-            let student = participants[studentSlug];
+        // rawProject.team.students.forEach((studentSlug : string) => {
+        //     console.log(studentSlug)
+        //     let student = participants[studentSlug];
 
-            projectStudents.push(student);
-        });
+        //     projectStudents.push(student);
+        // });
 
-        rawProject.team.coaches.forEach((coachSlug : string) => {
-            let coach = participants[coachSlug];
-            projectCoaches.push(coach);
-        });
+        // rawProject.team.coaches.forEach((coachSlug : string) => {
+        //     let coach = participants[coachSlug];
+        //     projectCoaches.push(coach);
+        // });
 
+        let students = rawProject.team.students
 
+        console.log(students);
         
         let project = new Project({
             name: rawProject.name,
             description: rawProject.description,
-            team: {
-                students: projectStudents,
-                coaches: projectCoaches
-            }
+            team: rawProject.team,
+            students: students,
+            coaches: rawProject.team.coaches 
         });
 
         await project.updateOne(project, {upsert: true});
