@@ -18,11 +18,11 @@ async function getOsocYear(year : Number) {
     let filename = `${cacheDir}/${year}.json`;
     if (existsSync(filename)) {
         console.info(`Reading ${year} from cache`);
-        return readFileSync(filename);
+        return JSON.parse(readFileSync(filename, {encoding: 'utf-8'})) as YearData;
     } else {
         let res :AxiosResponse = await axios.get(`https://osoc.be/_next/data/MXVWpqKkNw5fEuXKCEO5X/editions/${year}.json?year=${year}`);
-        let data = res.data;
-        
+        let data : YearData = res.data.pageProps;
+
         console.info(`Reading ${year} from website`);
 
         writeFile(filename, JSON.stringify(data), {encoding: 'utf-8'}, () => { console.log(`Cached to ${filename}`); } );
@@ -30,31 +30,57 @@ async function getOsocYear(year : Number) {
     }
 }
 
+interface YearData {
+    partners: Array<any>
+    participants: Array<any>
+    projects: Array<any>
+}
+
+
+/**
+ * 
+ * @param objects the objects to give a _id
+ * @param field the field that has to be converted to a slug and set to _id
+ * 
+ * @returns the objects array, but modified to have _id = slug of field value
+ */
+function giveIds(objects: Array<{[key : string] : string, data : any}>, field : string) {
+    objects.forEach((object) => {
+        let slugFromField = object[field].toLowerCase().replace(' ', '-');
+        object._id = slugFromField;
+    })
+    return objects;
+}
+
 
 
 async function main() {
     console.log("meow")
 
-    let data = await getOsocYear(2022);
+    let data : YearData = await getOsocYear(2022);
 
-    return;
+    data.participants = giveIds(data.participants, 'name');
+    console.log(data.participants);
 
-    //console.log(data)
 
-
-    console.log(await getOsocYear(2022));
     await client.connect();
-
+    
     let osoc = client.db('osoc');
 
-    let students : Collection = osoc.collection('students');
-    let paricipants : Collection = osoc.collection('participants');
+    
+
+    let partners : Collection = osoc.collection('partners');
+    let participants : Collection = osoc.collection('participants');
     let projects : Collection = osoc.collection('projects');
 
+
+    participants.insertMany(data.participants);
     //students.insertMany()
     
 
     await osoc.command({ping: 1})
+
+    await client.close();
 
 }
 
