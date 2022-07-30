@@ -1,6 +1,6 @@
 import { Collection, MongoClient } from 'mongodb';
 import axios, { AxiosResponse } from 'axios';
-import { existsSync, readFileSync, writeFile, mkdirSync } from 'fs';
+import { existsSync, readFileSync, writeFile, mkdir } from 'fs';
 
 // Consts
 const uri : string = 'mongodb://root:example@localhost:27017';
@@ -8,10 +8,6 @@ const buildDir : string = 'build/';
 const cacheDir : string = buildDir + 'cache/'
 
 const client : MongoClient = new MongoClient(uri);
-
-if (!existsSync(cacheDir)) {
-    mkdirSync(cacheDir);
-}
 
 
 async function getOsocYear(year : Number) {
@@ -55,37 +51,45 @@ function giveIds(objects: Array<{[key : string] : string, data : any}>, field : 
 }
 
 
+// Startup, initialization
+async function init() {
+    // Connect to database
+    let promises = [];
 
+    promises.push(client.connect());
+    
+    if (!existsSync(cacheDir)) {
+        promises.push(mkdir(cacheDir, () => { console.info(`Created ${cacheDir}`); } ));
+    }
+
+    return Promise.all(promises);
+}
+
+// Do the things
 async function main() {
-    console.log("meow")
-
+    // Get data from year
     let data : YearData = await getOsocYear(2022);
 
-    // For every property in data, set a _id field with a slug from name
-
-    console.log(giveIds(data.partners, 'id'));
-
-
-    await client.connect();
     
+    // Get database and collections within it
     let osoc = client.db('osoc');
-
-
-    
-
     let partners : Collection = osoc.collection('partners');
     let participants : Collection = osoc.collection('participants');
     let projects : Collection = osoc.collection('projects');
 
+    // For every property in data, save in the database with an appropiate indexing _id field
     await partners.insertMany(giveIds(data.partners, 'id'));
     await participants.insertMany(giveIds(data.participants, 'name'));
     await projects.insertMany(giveIds(data.projects, 'name'));
     
 
-    await osoc.command({ping: 1})
-
-    await client.close();
-
+    // 
+    
 }
 
-main();
+// Clean up and exit
+async function exit() {
+    await client.close();
+}
+
+init().then(main).then(exit);
