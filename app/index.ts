@@ -38,6 +38,7 @@ interface YearData {
 
 
 /**
+ * @link https://www.mongodb.com/docs/drivers/node/current/fundamentals/crud/write-operations/pkFactory/
  * 
  * @param objects the objects to give a _id
  * @param field the field that has to be converted to a slug and set to _id
