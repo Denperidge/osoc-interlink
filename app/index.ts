@@ -107,12 +107,14 @@ async function main() {
         let participant = participants[i];
         console.log(participant.name)
 
+        if (!participant.coach) participant.coach = false;
+
         let participantObject = new Participant({
             _id: slug(participant.name),
             name: participant.name,
-            coach: participant.coach
+            coach: participant.coach || false
         });
-        await participantObject.update({});
+        await participantObject.update(participant, {upsert: true});
     }
 }
 
