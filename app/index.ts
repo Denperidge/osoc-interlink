@@ -99,14 +99,15 @@ async function init() {
 
 
 let participants : { [key: string]: Document } = {};
+let partners : { [key:string]: Document} = {};
 
 // Do the things
 async function main() {
     // Get data from year
     let data : YearData = await getOsocYear(2022);
 
-    let rawParticipants = data.participants;
 
+    let rawParticipants = data.participants;
     for (let i=0; i < rawParticipants.length; i++) {
         let rawParticipant = rawParticipants[i];
 
@@ -117,6 +118,17 @@ async function main() {
 
         participants[rawParticipant.name] = participant;
         await participant.updateOne(participant, {upsert: true});
+    }
+
+
+    let rawPartners = data.partners;
+    for (let i=0; i< rawPartners.length; i++) {
+        let rawPartner = rawPartners[i];
+        rawPartner._id = rawPartner.id;
+        let partner = new Partner(rawPartner);
+
+        partners[rawPartner.name] = partner;
+        await partner.updateOne(partner, {upsert: true});
     }
 }
 
