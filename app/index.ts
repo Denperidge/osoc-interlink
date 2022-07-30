@@ -31,6 +31,7 @@ async function getOsocYear(year : Number) {
 }
 
 interface YearData {
+    [key: string]: Array<any>
     partners: Array<any>
     participants: Array<any>
     projects: Array<any>
@@ -60,23 +61,27 @@ async function main() {
 
     let data : YearData = await getOsocYear(2022);
 
-    data.participants = giveIds(data.participants, 'name');
-    console.log(data.participants);
+    // For every property in data, set a _id field with a slug from name
+    Object.keys(data).forEach((propertyKey : string) => {
+        data[propertyKey] = giveIds(data[propertyKey] , 'name');
+    });
+
 
 
     await client.connect();
     
     let osoc = client.db('osoc');
 
+    console.log(data.projects)
     
 
     let partners : Collection = osoc.collection('partners');
     let participants : Collection = osoc.collection('participants');
     let projects : Collection = osoc.collection('projects');
 
-
+    partners.insertMany(data.partners);
     participants.insertMany(data.participants);
-    //students.insertMany()
+    projects.insertMany(data.projects);
     
 
     await osoc.command({ping: 1})
