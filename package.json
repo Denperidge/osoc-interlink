@@ -1,0 +1,14 @@
+{
+  "name": "osoc-interlink",
+  "version": "1.0.0",
+  "description": "Interlinking all the data on the opensummerofcode website",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Denperidge",
+  "license": "MIT",
+  "dependencies": {
+    "mongodb": "^4.8.1"
+  }
+}
