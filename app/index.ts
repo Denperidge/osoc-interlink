@@ -40,6 +40,7 @@ const partnerSchema = new Schema({
 });
 const participantSchema = new Schema({
     _id: String,
+    name: String,
     socials: {
         stuff: String
      },
@@ -105,23 +106,17 @@ async function main() {
 
     for (let i=0; i < participants.length; i++) {
         let participant = participants[i];
-        console.log(participant.name)
 
         if (!participant.coach) participant.coach = false;
 
-        let participantObject = new Participant({
-            _id: slug(participant.name),
-            name: participant.name,
-            coach: participant.coach || false
-        });
-        await participantObject.update(participant, {upsert: true});
+        let participantObject = new Participant(giveId(participant, 'name'));
+        await participantObject.updateOne(participant, {upsert: true});
     }
 }
 
 // Clean up and exit
 async function exit() {
     await disconnect();
-    //await client.close();
 }
 
 init().then(main).then(exit);
