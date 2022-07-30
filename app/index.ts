@@ -1,4 +1,4 @@
-import mongoose, { connect, disconnect, model, Schema } from 'mongoose';
+import mongoose, { connect, disconnect, model, Schema, Document } from 'mongoose';
 import axios, { AxiosResponse } from 'axios';
 import { existsSync, readFileSync, writeFile, mkdir } from 'fs';
 
@@ -97,20 +97,26 @@ async function init() {
     return Promise.all(promises);
 }
 
+
+let participants : { [key: string]: Document } = {};
+
 // Do the things
 async function main() {
     // Get data from year
     let data : YearData = await getOsocYear(2022);
 
-    let participants = data.participants;
+    let rawParticipants = data.participants;
 
-    for (let i=0; i < participants.length; i++) {
-        let participant = participants[i];
+    for (let i=0; i < rawParticipants.length; i++) {
+        let rawParticipant = rawParticipants[i];
 
-        if (!participant.coach) participant.coach = false;
+        if (!rawParticipant.coach) rawParticipant.coach = false;
+        rawParticipant = giveId(rawParticipant, 'name');
 
-        let participantObject = new Participant(giveId(participant, 'name'));
-        await participantObject.updateOne(participant, {upsert: true});
+        let participant = new Participant(rawParticipant);
+
+        participants[rawParticipant.name] = participant;
+        await participant.updateOne(participant, {upsert: true});
     }
 }
 
