@@ -1,4 +1,4 @@
-import { Collection, MongoClient } from 'mongodb';
+import mongoose, { connect, disconnect, model, Schema } from 'mongoose';
 import axios, { AxiosResponse } from 'axios';
 import { existsSync, readFileSync, writeFile, mkdir } from 'fs';
 
@@ -6,8 +6,6 @@ import { existsSync, readFileSync, writeFile, mkdir } from 'fs';
 const uri : string = 'mongodb://root:example@localhost:27017';
 const buildDir : string = 'build/';
 const cacheDir : string = buildDir + 'cache/'
-
-const client : MongoClient = new MongoClient(uri);
 
 
 async function getOsocYear(year : Number) {
@@ -33,6 +31,30 @@ interface YearData {
     projects: Array<any>
 }
 
+// Schemas
+const partnerSchema = new Schema({
+    _id: String,
+    name: String,
+    url: String,
+    logo: String
+});
+const participantSchema = new Schema({
+    _id: String,
+    socials: {
+        stuff: String
+     },
+    coach: Boolean
+});
+const projectSchema = new Schema({
+    _id: String,
+    name: String,
+    description: String,
+    team: { students: [participantSchema], coaches: [participantSchema] }
+});
+const Partner = model('Partner', partnerSchema);
+const Participant = model('Participant', participantSchema);
+const Project = model('Project', projectSchema);
+
 
 /**
  * @link https://www.mongodb.com/docs/drivers/node/current/fundamentals/crud/write-operations/pkFactory/
@@ -49,6 +71,15 @@ function giveIds(objects: Array<{[key : string] : string, data : any}>, field : 
     })
     return objects;
 }
+function giveId(object : {[key : string] : string, data : any}, field : string) {
+    object._id = slug(object[field]);
+    return object;
+}
+
+
+function slug(value: string){
+    return value.toLowerCase().replace(' ', '-');
+}
 
 
 // Startup, initialization
@@ -56,7 +87,7 @@ async function init() {
     // Connect to database
     let promises = [];
 
-    promises.push(client.connect());
+    promises.push(connect(uri));
     
     if (!existsSync(cacheDir)) {
         promises.push(mkdir(cacheDir, () => { console.info(`Created ${cacheDir}`); } ));
@@ -70,26 +101,25 @@ async function main() {
     // Get data from year
     let data : YearData = await getOsocYear(2022);
 
-    
-    // Get database and collections within it
-    let osoc = client.db('osoc');
-    let partners : Collection = osoc.collection('partners');
-    let participants : Collection = osoc.collection('participants');
-    let projects : Collection = osoc.collection('projects');
+    let participants = data.participants;
 
-    // For every property in data, save in the database with an appropiate indexing _id field
-    await partners.insertMany(giveIds(data.partners, 'id'));
-    await participants.insertMany(giveIds(data.participants, 'name'));
-    await projects.insertMany(giveIds(data.projects, 'name'));
-    
+    for (let i=0; i < participants.length; i++) {
+        let participant = participants[i];
+        console.log(participant.name)
 
-    // 
-    
+        let participantObject = new Participant({
+            _id: slug(participant.name),
+            name: participant.name,
+            coach: participant.coach
+        });
+        await participantObject.update({});
+    }
 }
 
 // Clean up and exit
 async function exit() {
-    await client.close();
+    await disconnect();
+    //await client.close();
 }
 
 init().then(main).then(exit);
