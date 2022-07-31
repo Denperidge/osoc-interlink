@@ -8,7 +8,7 @@ function slug(value: string){
 
 // Globals
 let partners : {[slug: string]: Partner;} = {};
-let students : {[slug: string]: Partner;} = {};
+let participants : {[slug: string]: Participant;} = {};
 let projects : {[id: string]: Partner;} = {};
 
 // Interface of Team object found in data
@@ -17,14 +17,23 @@ interface TeamIds {
     coaches: Array<string>
 }
 
+interface RawProject {
+    name: string;
+    description: string;
+    team: TeamIds,
+    repository: string,
+    website: string,
+    partners: Array<string>
+}
+
 // Classes
 class Project {
     id: string;
     name: string;
     description: string;
-    logo: URL;
+    logo?: URL;
     team: Team;
-    repository: URL;
+    repository?: URL;
     website?: URL;
     partners: Array<Partner>;
 
@@ -34,9 +43,8 @@ class Project {
         this.id = slug(name)
         this.name = name;
         this.description = description;
-        this.logo = new URL('');
-        this.team = teamIds;
-        this.repository = new URL (repository);
+        this.team = new Team(teamIds);
+        if (repository) this.repository = new URL (repository);
         if (website) this.website = new URL(website);
         this.partners = partners;
     }
@@ -49,29 +57,40 @@ class Partner {
 
 
 class Team {
-    /*
-    students: Array<Student>;
-    coaches: Array<Coach>;
-    id : string;
+    participants: Array<Participant>;
 
-    */
+    constructor(teamIds: TeamIds) {
+        this.participants = [];
+        let rawParticipants = teamIds.students.concat(teamIds.coaches);
+        rawParticipants.forEach((participantId) => {
+            this.participants.push(participants[participantId]);
+        });
+    }
+    
+    get students() {
+        return this.participants.filter((participant) => participant.coach == false);
+    }
+    get coaches() {
+        return this.participants.filter((participant) => participant.coach == true);
+    }
 }
 
 class Participant {
     name: string;
+    coach: boolean;
 
-    constructor (name: string) {
+    constructor (name: string, coach : boolean) {
         this.name = name;
+        this.coach = coach;
     }
 }
 
 async function main() {
     let twentytwo = await (await fetch('data/2022.json')).json();
-    console.log(twentytwo)
-    twentytwo.projects.forEach((project: Project) => {
+    
+    twentytwo.projects.forEach((project: RawProject) => {
         console.log(project)
-
-        /*
+        
         projects[project.name] = new Project(
             project.name,
             project.description,
@@ -80,7 +99,7 @@ async function main() {
             project.partners,
             project.website || ''
         );
-        */
+        console.log(projects[project.name])
     });
     
 }
