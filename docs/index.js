@@ -11,7 +11,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 // Functions
 function slug(value) {
-    return value.toLowerCase().replace(/ /g, '-');
+    // Accent removal source: https://stackoverflow.com/a/37511463
+    return value.toLowerCase().replace(/ /g, '-').normalize('NFD').replace(/\p{Diacritic}/gu, '');
 }
 // Globals
 let allPartners = {};
@@ -65,16 +66,20 @@ class Team {
     constructor(teamIds) {
         this.participants = [];
         let rawParticipants = teamIds.students.concat(teamIds.coaches);
-        console.log(rawParticipants);
         rawParticipants.forEach((participantId) => {
+            if (!allParticipants[participantId]) {
+                console.log("=============");
+                console.log(participantId);
+                console.log("=============");
+            }
             this.participants.push(allParticipants[participantId]);
         });
     }
     get students() {
-        console.log(this.participants);
         return this.participants.filter((participant) => participant.coach == false);
     }
     get coaches() {
+        console.log(this.participants);
         return this.participants.filter((participant) => participant.coach == true);
     }
 }
@@ -130,7 +135,13 @@ function print(data) {
 function displayData() {
     let search = window.location.search.substring(1);
     if (!search) {
-        document.body.innerHTML = allParticipants['cat-catry'].interactive(1);
+        let data = '';
+        allProjects.forEach((project) => {
+            console.log(project.name);
+            data += project.interactive(2);
+            data += '<br><hr><br>';
+        });
+        document.body.innerHTML = data;
     }
     else {
         let query = slug(search.substring(search.indexOf('=') + 1)); // Remove ? and type=
