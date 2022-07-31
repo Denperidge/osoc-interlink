@@ -75,13 +75,13 @@ class Project {
         
         data += `<${h3}>Coaches:</${h3}><ul>`;
         this.team.coaches.forEach((participant) => {
-            data += `<li><a href="/?participant=${participant.id}">${participant.name}</a>`
+            data += `<li><a href="?participant=${participant.id}">${participant.name}</a>`
         });
         data += '</ul>'
 
         data += `<${h3}>Students:</${h3}><ul>`;
         this.team.students.forEach((participant) => {
-            data += `<li><a href="/?participant=${participant.id}">${participant.name}</a>`
+            data += `<li><a href="?participant=${participant.id}">${participant.name}</a>`
         });
         data += '</ul>'
 
@@ -143,7 +143,7 @@ class Participant {
         
         data += `<${h2}>Projects</${h2}><ul>`;
         this.projects.forEach((project) => {
-            data += `<li><a href="/?project=${project.id}">${project.name}</a>`
+            data += `<li><a href="?project=${project.id}">${project.name}</a>`
         });
         data += '</ul>'
 
