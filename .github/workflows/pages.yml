@@ -30,6 +30,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Install dependencies
+        run: npm install
       - name: Build everything
         run: npm run build
       - name: Setup Pages
@@ -37,8 +39,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          # Upload entire repository
-          path: '.build/'
+          path: './build/'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@main
