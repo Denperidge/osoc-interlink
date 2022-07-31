@@ -65,9 +65,9 @@ class Project {
         
         if (this.repository || this.website) {
             data += '<ul>';
-            if (this.repository) data += `Repository: <a href=${this.repository.toString()}">${this.repository.toString()}</a>`
-            if (this.website) data += `Website: <a href=${this.website.toString()}">${this.website.toString()}</a>`
-            data += '<ul>'
+            if (this.repository) data += `<li>Repository: <a href=${this.repository.toString()}">${this.repository.toString()}</a></li>`;
+            if (this.website) data += `<li>Website: <a href=${this.website.toString()}">${this.website.toString()}</a></li>`;
+            data += '</ul>'
         }
 
         data += `<${h2}>Team</${h2}>`;
@@ -79,7 +79,7 @@ class Project {
         data += '</ul>'
 
         data += `<${h3}>Students:</${h3}><ul>`;
-        this.team.coaches.forEach((participant) => {
+        this.team.students.forEach((participant) => {
             data += `<li><a href="/?participant=${participant.id}">${participant.name}</a>`
         });
         data += '</ul>'
@@ -107,6 +107,7 @@ class Team {
     }
     
     get students() : Array<Participant> {
+        console.log(this.participants)
         return this.participants.filter((participant) => participant.coach == false);
     }
     get coaches() {
@@ -124,7 +125,7 @@ class Participant {
         this.id = slug(name);
         this.name = name;
         this.socials = socials;
-        this.coach = coach;
+        this.coach = coach || false;
     }
 
     interactive(topHeader : number) : string {
@@ -144,9 +145,7 @@ class Participant {
             data += `<${h2}>Socials</${h2}>`
             data += `<ul>`;
             socials.forEach((socialName : string) => {
-                console.log(socialName)
                 let socialUrl = this.socials[socialName].toString();
-                console.log(socialUrl)
                 let socialUsername = socialUrl.split('/')[3] //socialUrl.substring(socialUrl.lastIndexOf('/')+1)
 
                 data += `    <li>${socialName} - 
@@ -172,10 +171,6 @@ async function parseData() {
         let participant = new Participant(rawParticipant.name, rawParticipant.socials, rawParticipant.coach);
         allParticipants[participant.id] = participant;
     });
-
-    console.log(allParticipants)
-    console.log('---------')
-
 
     twentytwo.projects.forEach((project: RawProject) => {
         allProjects.push(new Project(
