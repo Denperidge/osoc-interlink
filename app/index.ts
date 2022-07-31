@@ -89,10 +89,11 @@ class Project {
         });
         data += '</ul>'
 
-        data += `<${h2}>Partners</${h2}>`;
+        data += `<${h3}>Partners:</${h3}><ul>`;
         this.partners.forEach((partner) => {
-            data += partner.interactive(5);
+            data += `<li><a href="?partner=${partner.id}">${partner.name}</a>`
         });
+        data += '</ul>'
 
         return data;
     }
@@ -126,12 +127,19 @@ class Partner {
     
     interactive(topHeader : number) : string {
         let h1 = `h${topHeader}`;
+        let h2 = `h${topHeader+1}`;
         
 
-        let data =`<a href="${this.url}">
-                    <${h1}>${this.name}</${h1}>
-                    <img alt="Logo for ${this.name}" src="${this.logo}" />
-                   </a>`
+        let data =`<${h1}>${this.name}</${h1}>`
+        data += `<img alt="Logo for ${this.name}" src="${this.logo}" />`;
+        data += `<p>Website: <a href="${this.url}">${this.url}</a></p>`;
+                   
+        
+        data += `<${h2}>Projects</${h2}><ul>`;
+        this.projects.forEach((project) => {
+            data += `<li><a href="?project=${project.id}">${project.name}</a>`
+        });
+        data += '</ul>'
 
         return data;
     }
@@ -267,11 +275,11 @@ function displayData() {
                 document.body.innerHTML = project.interactive(1);
             }
         }
+        else if (search.startsWith('partner')) {
+            document.body.innerHTML = allPartners[query].interactive(1);
+        }
         
     }
-
-    console.log(allPartners)
-
     
     console.log(window.location.search)
 }
