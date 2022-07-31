@@ -3,7 +3,7 @@
 
 // Functions
 function slug(value: string){
-    return value.toLowerCase().replace(' ', '-');
+    return value.toLowerCase().replace(/ /g, '-');
 }
 
 // Globals
@@ -68,6 +68,7 @@ class Team {
     constructor(teamIds: RawTeam) {
         this.participants = [];
         let rawParticipants = teamIds.students.concat(teamIds.coaches);
+        console.log(rawParticipants)
         rawParticipants.forEach((participantId) => {
             this.participants.push(participants[participantId]);
         });
@@ -100,16 +101,16 @@ async function main() {
 
     twentytwo.participants.forEach((rawParticipant : RawParticipant) => {
         let participant = new Participant(rawParticipant.name, rawParticipant.socials, rawParticipant.coach);
-        console.log(participant)
         participants[participant.id] = participant;
     });
 
     console.log(participants)
-    return;
+    console.log('---------')
 
-    
+
     twentytwo.projects.forEach((project: RawProject) => {
-        console.log(project)
+
+        console.log(project.team)
         
         projects[project.name] = new Project(
             project.name,
