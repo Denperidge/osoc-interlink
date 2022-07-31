@@ -12,7 +12,13 @@ let participants : {[slug: string]: Participant;} = {};
 let projects : {[id: string]: Partner;} = {};
 
 // Interface of Team object found in data
-interface TeamIds {
+interface RawParticipant {
+    name: string;
+    socials: {[key: string]: URL};
+    coach: boolean;
+}
+
+interface RawTeam {
     students: Array<string>
     coaches: Array<string>
 }
@@ -20,7 +26,7 @@ interface TeamIds {
 interface RawProject {
     name: string;
     description: string;
-    team: TeamIds,
+    team: RawTeam,
     repository: string,
     website: string,
     partners: Array<string>
@@ -38,7 +44,7 @@ class Project {
     partners: Array<Partner>;
 
     // Contsructor based off the json impelementation for the website
-    constructor(name : string, description : string, teamIds: TeamIds, repository: string|URL, partners : Array<string>, website?: string|URL) {
+    constructor(name : string, description : string, teamIds: RawTeam, repository: string|URL, partners : Array<string>, website?: string|URL) {
         //if (website instanceof ) website = 
         this.id = slug(name)
         this.name = name;
@@ -57,9 +63,9 @@ class Partner {
 
 
 class Team {
-    participants: Array<Participant>;
+    private participants: Array<Participant>;
 
-    constructor(teamIds: TeamIds) {
+    constructor(teamIds: RawTeam) {
         this.participants = [];
         let rawParticipants = teamIds.students.concat(teamIds.coaches);
         rawParticipants.forEach((participantId) => {
@@ -67,7 +73,7 @@ class Team {
         });
     }
     
-    get students() {
+    get students() : Array<Participant> {
         return this.participants.filter((participant) => participant.coach == false);
     }
     get coaches() {
@@ -76,17 +82,31 @@ class Team {
 }
 
 class Participant {
+    id: string;
     name: string;
+    socials: {[key: string]: URL};
     coach: boolean;
 
-    constructor (name: string, coach : boolean) {
+    constructor (name: string, socials: {[key: string]: URL}, coach : boolean) {
+        this.id = slug(name);
         this.name = name;
+        this.socials = socials;
         this.coach = coach;
     }
 }
 
 async function main() {
     let twentytwo = await (await fetch('data/2022.json')).json();
+
+    twentytwo.participants.forEach((rawParticipant : RawParticipant) => {
+        let participant = new Participant(rawParticipant.name, rawParticipant.socials, rawParticipant.coach);
+        console.log(participant)
+        participants[participant.id] = participant;
+    });
+
+    console.log(participants)
+    return;
+
     
     twentytwo.projects.forEach((project: RawProject) => {
         console.log(project)
