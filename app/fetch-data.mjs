@@ -1,8 +1,11 @@
 import axios from 'axios';
-import { writeFile, writeFileSync } from 'fs';
+import { mkdirSync, writeFileSync } from 'fs';
 
 const baseDir = 'build/data/'
 const baseUrl = 'https://raw.githubusercontent.com/opensummerofcode/website/master/public/editions/';
+
+
+mkdirSync(baseDir, {recursive: true});
 
 // Combine all data into one file
 async function download(year) {
