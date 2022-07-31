@@ -1,4 +1,10 @@
-import twentytwo from './data/2022.json';
+//import twentytwo from './data/2022.json';
+
+
+// Functions
+function slug(value: string){
+    return value.toLowerCase().replace(' ', '-');
+}
 
 // Globals
 let partners : {[slug: string]: Partner;} = {};
@@ -6,7 +12,7 @@ let students : {[slug: string]: Partner;} = {};
 let projects : {[id: string]: Partner;} = {};
 
 // Interface of Team object found in data
-interface Team {
+interface TeamIds {
     students: Array<string>
     coaches: Array<string>
 }
@@ -23,13 +29,13 @@ class Project {
     partners: Array<Partner>;
 
     // Contsructor based off the json impelementation for the website
-    constructor(id : string, name : string, description : string, logo : string, team: Team, repository: string|URL, partners : Array<string>, website?: string|URL) {
+    constructor(name : string, description : string, teamIds: TeamIds, repository: string|URL, partners : Array<string>, website?: string|URL) {
         //if (website instanceof ) website = 
-        this.id = id;
+        this.id = slug(name)
         this.name = name;
         this.description = description;
-        this.logo = new URL(logo);
-        this.team = team;
+        this.logo = new URL('');
+        this.team = teamIds;
         this.repository = new URL (repository);
         if (website) this.website = new URL(website);
         this.partners = partners;
@@ -51,14 +57,32 @@ class Team {
     */
 }
 
-interface Person {
-    name: String;
+class Participant {
+    name: string;
+
+    constructor (name: string) {
+        this.name = name;
+    }
 }
 
-class Student implements Person {
-    name: String;
+async function main() {
+    let twentytwo = await (await fetch('data/2022.json')).json();
+    console.log(twentytwo)
+    twentytwo.projects.forEach((project: Project) => {
+        console.log(project)
+
+        /*
+        projects[project.name] = new Project(
+            project.name,
+            project.description,
+            project.team,
+            project.repository || '',
+            project.partners,
+            project.website || ''
+        );
+        */
+    });
+    
 }
 
-class Coach implements Person {
-    name: String;
-}
+main();
