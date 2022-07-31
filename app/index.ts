@@ -13,18 +13,12 @@ let allPartners : {[slug: string]: Partner;} = {};
 let allParticipants : {[slug: string]: Participant;} = {};
 let allProjects : Array<Project> = [];
 
-// Interface of Team object found in data
-interface RawParticipant {
-    name: string;
-    socials: {[key: string]: URL};
-    coach: boolean;
-}
 
-interface RawTeam {
-    students: Array<string>
-    coaches: Array<string>
-}
-
+/**
+ * ==================== Project ====================
+ * The projects, worked on by a @see Team and @see Partner
+ */
+// Projects as structured in the OSOC JSON files
 interface RawProject {
     name: string;
     description: string;
@@ -33,8 +27,7 @@ interface RawProject {
     website: string,
     partners: Array<string>
 }
-
-// Classes
+// Projects after being parsed
 class Project {
     id: string;
     name: string;
@@ -98,7 +91,46 @@ class Project {
         return data;
     }
 }
+/**
+ * ==================== Teams ====================
+ * The @see Participant 's (students & coaches) that worked on a @see Project
+ */
+// Teams as structured in the OSOC JSON files
+interface RawTeam {
+    students: Array<string>
+    coaches: Array<string>
+}
+// Teams after being parsed.
+class Team {
+    participants: Array<Participant>;
 
+    constructor(teamIds: RawTeam) {
+        this.participants = [];
+        let rawParticipants = teamIds.students.concat(teamIds.coaches);
+        
+        rawParticipants.forEach((participantId) => {
+            if (!allParticipants[participantId]) {
+                console.log("=============")
+                console.log(participantId);
+                console.log("=============")
+
+            }
+            this.participants.push(allParticipants[participantId]);
+        });
+    }
+    
+    get students() : Array<Participant> {
+        return this.participants.filter((participant) => participant.coach == false);
+    }
+    get coaches() {
+        console.log(this.participants)
+        return this.participants.filter((participant) => participant.coach == true);
+    }
+}
+
+/**
+ * ==================== Partners ====================
+ */
 interface RawPartner {
     id: string;
     name: string;
@@ -146,31 +178,15 @@ class Partner {
 }
 
 
-class Team {
-    participants: Array<Participant>;
-
-    constructor(teamIds: RawTeam) {
-        this.participants = [];
-        let rawParticipants = teamIds.students.concat(teamIds.coaches);
-        
-        rawParticipants.forEach((participantId) => {
-            if (!allParticipants[participantId]) {
-                console.log("=============")
-                console.log(participantId);
-                console.log("=============")
-
-            }
-            this.participants.push(allParticipants[participantId]);
-        });
-    }
-    
-    get students() : Array<Participant> {
-        return this.participants.filter((participant) => participant.coach == false);
-    }
-    get coaches() {
-        console.log(this.participants)
-        return this.participants.filter((participant) => participant.coach == true);
-    }
+/**
+ * ==================== Participants ====================
+ * Individual participants, working on @see Project s.
+ * Can be coaches and/or students
+ */
+interface RawParticipant {
+    name: string;
+    socials: {[key: string]: URL};
+    coach: boolean;
 }
 
 class Participant {
@@ -222,6 +238,18 @@ class Participant {
     
 }
 
+
+/**
+ * ==================== Main ====================
+ * The functions that are being run
+ */
+
+/**
+ * This function...
+ * - Gets the data from local JSON files
+ * - Parses it into objects ( @see Participant | @see Project | @see Partner )
+ * - And saves them globally ( @see allParticipants | @see allProjects | @see allPartners )
+ */
 async function parseData() {
     let twentytwo = await (await fetch('data/2022.json')).json();
 
@@ -247,11 +275,11 @@ async function parseData() {
     });
 }
 
-
-function print(data : Participant|Project) {
-    //document.body.innerHTML = data;
-}
-
+/**
+ * This function...
+ * - If there's no ?query=set, show all projects seperated by lines
+ * - If there is a query, check what is being queried, and display it interactively
+ */
 function displayData() {
     let search = window.location.search.substring(1);
     if (!search) {
@@ -284,4 +312,7 @@ function displayData() {
     console.log(window.location.search)
 }
 
-parseData().then(displayData);
+function main() {
+    parseData().then(displayData);
+}
+main();
