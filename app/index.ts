@@ -1,193 +1,71 @@
-import { connect, disconnect, model, Schema, Document } from 'mongoose';
-import axios, { AxiosResponse } from 'axios';
-import { existsSync, readFileSync, writeFile, mkdir } from 'fs';
-import { compile } from 'pug';
-import express from 'express';
 
-const app = express();
-app.set[Symbol]('view engine', 'pug');
-
-// Consts
-const uri : string = 'mongodb://root:example@localhost:27017';
-const buildDir : string = 'build/';
-const cacheDir : string = buildDir + 'cache/'
+// Globals
+let partners : {[slug: string]: Partner;} = {};
+let students : {[slug: string]: Partner;} = {};
+let projects : {[id: string]: Partner;} = {};
 
 
-async function getOsocYear(year : Number) {
-    let filename = `${cacheDir}/${year}.json`;
-    if (existsSync(filename)) {
-        console.info(`Reading ${year} from cache`);
-        return JSON.parse(readFileSync(filename, {encoding: 'utf-8'})) as YearData;
-    } else {
-        let res :AxiosResponse = await axios.get(`https://osoc.be/_next/data/MXVWpqKkNw5fEuXKCEO5X/editions/${year}.json?year=${year}`);
-        let data : YearData = res.data.pageProps;
+// Classes
+class Project {
+    id: string;
+    name: string;
+    description: string;
+    logo: URL;
+    private _teamId: string;
+    repository: URL;
+    website?: URL;
+    partners: Array<Partner>;
 
-        console.info(`Reading ${year} from website`);
-
-        writeFile(filename, JSON.stringify(data), {encoding: 'utf-8'}, () => { console.log(`Cached to ${filename}`); } );
-        return data;
+    //constructor(id : string, name: string, )
+    // Contsructor based off the json impelementation for the website
+    //constructor(id : string, name : string, description : string, logo : string, team: Array<string>, repository: string, website?: string);
+    constructor(id : string, name : string, description : string, logo : string, team: string, repository: string|URL, website?: string|URL, partners : Array<string>) {
+        //if (website instanceof ) website = 
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.logo = new URL(logo);
+        this._teamId = team;
+        this.repository = new URL (repository);
+        if (website) this.website = new URL(website);
+        this.partners = 
     }
+
+    set team(value : string|Team) {
+        if (value instanceof Team) {
+            this._teamId = value.id;
+        } else {
+            this._teamId = value;
+        }
+    }
+
+    get team() : Team {
+        return this.team;
+    }
+
+
 }
 
-interface YearData {
-    //[key: string]: Array<any>
-    partners: Array<any>
-    participants: Array<any>
-    projects: Array<any>
+class Partner {
+
 }
 
-// Schemas
-const partnerSchema = new Schema({
-    _id: String,
-    name: String,
-    url: String,
-    logo: String
-});
-const participantSchema = new Schema({
-    _id: String,
-    name: String,
-    socials: {
-        stuff: String
-     },
-    coach: Boolean
-});
-const projectSchema = new Schema({
-    name: String,
-    description: String,
-    // Types.String, not Types.ObjectId
-    students: [{ type: Schema.Types.String, ref: 'Participant' }], 
-    coaches: [{ type: Schema.Types.String, ref: 'Participant' }]
-});
-const Partner = model('Partner', partnerSchema);
-const Participant = model('Participant', participantSchema);
-const Project = model('Project', projectSchema);
+class Team {
+    students: Array<Student>;
+    coaches: Array<Coach>;
+    id : string;
 
-
-/**
- * @link https://www.mongodb.com/docs/drivers/node/current/fundamentals/crud/write-operations/pkFactory/
- * 
- * @param objects the objects to give a _id
- * @param field the field that has to be converted to a slug and set to _id
- * 
- * @returns the objects array, but modified to have _id = slug of field value
- */
-function giveIds(objects: Array<{[key : string] : string, data : any}>, field : string) {
-    objects.forEach((object) => {
-        let slugFromField = object[field].toLowerCase().replace(' ', '-');
-        object._id = slugFromField;
-    })
-    return objects;
-}
-function giveId(object : {[key : string] : string, data : any}, field : string) {
-    object._id = slug(object[field]);
-    return object;
-}
-
-
-function slug(value: string){
-    return value.toLowerCase().replace(' ', '-');
-}
-
-
-// Startup, initialization
-async function init() {
-    // Connect to database
-    let promises = [];
-
-    promises.push(connect(uri));
     
-    if (!existsSync(cacheDir)) {
-        promises.push(mkdir(cacheDir, () => { console.info(`Created ${cacheDir}`); } ));
-    }
-
-    return Promise.all(promises);
 }
 
-
-let participants : { [key: string]: Document } = {};
-let partners : { [key:string]: Document} = {};
-let projects : { [key:string]: Document<typeof Project>} = {}
-
-// Do the things
-async function loadData() {
-    // Get data from year
-    let data : YearData = await getOsocYear(2022);
-
-
-    let rawParticipants = data.participants;
-    for (let i=0; i < rawParticipants.length; i++) {
-        let rawParticipant = rawParticipants[i];
-
-        if (!rawParticipant.coach) rawParticipant.coach = false;
-        rawParticipant = giveId(rawParticipant, 'name');
-
-        let participant = new Participant(rawParticipant);
-
-        participants[rawParticipant._id] = participant;
-        await participant.updateOne(participant, {upsert: true});
-    }
-
-
-    let rawPartners = data.partners;
-    for (let i=0; i< rawPartners.length; i++) {
-        let rawPartner = rawPartners[i];
-        rawPartner._id = rawPartner.id;
-        let partner = new Partner(rawPartner);
-
-        partners[rawPartner._id] = partner;
-        await partner.updateOne(partner, {upsert: true});
-    }
-
-    let rawProjects = data.projects;
-    for (let i = 0; i < rawProjects.length; i++) {
-        let rawProject = rawProjects[i];
-
-        let project = new Project({
-            name: rawProject.name,
-            description: rawProject.description,
-            team: rawProject.team,
-            students: rawProject.team.students,
-            coaches: rawProject.team.coaches
-        });
-
-        await project.populate('students');
-        await project.populate('coaches');
-
-        await project.updateOne(project, {upsert: true});
-
-        
-    }
+interface Person {
+    name: String;
 }
 
-app.get('/', (req, res) => {
-    res.send('/project/:name');
-});
+class Student extends Person {
 
-app.get('/project/:query', (req, res) => {
-
-});
-
-
-app.get('/student/:query', (req, res) => {
-    
-});
-
-app.get('/coach/:query', (req, res) => {
-    
-});
-
-app.get('/partner/:query', (req, res) => {
-
-});
-
-
-
-// Clean up and exit
-async function exit() {
-    await disconnect();
 }
 
+class Coach extends Person {
 
-
-
-init().then(loadData);
+}
