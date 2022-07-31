@@ -89,6 +89,11 @@ class Project {
         });
         data += '</ul>'
 
+        data += `<${h2}>Partners</${h2}>`;
+        this.partners.forEach((partner) => {
+            data += partner.interactive(5);
+        });
+
         return data;
     }
 }
@@ -116,6 +121,19 @@ class Partner {
 
     get projects() : Array<Project> {
         return allProjects.filter((project) => project.partners.includes(this))
+    }
+
+    
+    interactive(topHeader : number) : string {
+        let h1 = `h${topHeader}`;
+        
+
+        let data =`<a href="${this.url}">
+                    <${h1}>${this.name}</${h1}>
+                    <img alt="Logo for ${this.name}" src="${this.logo}" />
+                   </a>`
+
+        return data;
     }
 }
 
