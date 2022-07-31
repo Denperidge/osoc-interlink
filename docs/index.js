@@ -32,6 +32,32 @@ class Project {
             this.website = new URL(website);
         this.partners = partners;
     }
+    interactive(topHeader) {
+        let h1 = `h${topHeader}`;
+        let h2 = `h${topHeader + 1}`;
+        let h3 = `h${topHeader + 2}`;
+        let data = `<${h1}>${this.name}</${h1}><p>${this.description}</p>`;
+        if (this.repository || this.website) {
+            data += '<ul>';
+            if (this.repository)
+                data += `Repository: <a href=${this.repository.toString()}">${this.repository.toString()}</a>`;
+            if (this.website)
+                data += `Website: <a href=${this.website.toString()}">${this.website.toString()}</a>`;
+            data += '<ul>';
+        }
+        data += `<${h2}>Team</${h2}>`;
+        data += `<${h3}>Coaches:</${h3}><ul>`;
+        this.team.coaches.forEach((participant) => {
+            data += `<li><a href="/?participant=${participant.id}">${participant.name}</a>`;
+        });
+        data += '</ul>';
+        data += `<${h3}>Students:</${h3}><ul>`;
+        this.team.coaches.forEach((participant) => {
+            data += `<li><a href="/?participant=${participant.id}">${participant.name}</a>`;
+        });
+        data += '</ul>';
+        return data;
+    }
 }
 class Partner {
 }
@@ -62,9 +88,11 @@ class Participant {
         let h1 = `h${topHeader}`;
         let h2 = `h${topHeader + 1}`;
         let data = `<${h1}>${this.name}</${h1}>`;
-        data += `<${h2}>Projects<${h2}>`;
+        data += `<${h2}>Projects</${h2}><ul>`;
         this.projects.forEach((project) => {
+            data += `<li><a href="/?project=${project.id}">${project.name}</a>`;
         });
+        data += '</ul>';
         let socials = Object.keys(this.socials);
         if (socials.length > 0) {
             data += `<${h2}>Socials</${h2}>`;
