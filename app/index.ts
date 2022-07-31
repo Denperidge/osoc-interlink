@@ -49,8 +49,9 @@ const participantSchema = new Schema({
 const projectSchema = new Schema({
     name: String,
     description: String,
-    students: [participantSchema], 
-    coaches: [participantSchema] 
+    // Types.String, not Types.ObjectId
+    students: [{ type: Schema.Types.String, ref: 'Participant' }], 
+    coaches: [{ type: Schema.Types.String, ref: 'Participant' }]
 });
 const Partner = model('Partner', partnerSchema);
 const Participant = model('Participant', participantSchema);
@@ -135,35 +136,20 @@ async function main() {
     let rawProjects = data.projects;
     for (let i = 0; i < rawProjects.length; i++) {
         let rawProject = rawProjects[i];
-        let projectStudents : Array<Document> = [];
-        let projectCoaches : Array<Document> = [];
 
-        // rawProject.team.students.forEach((studentSlug : string) => {
-        //     console.log(studentSlug)
-        //     let student = participants[studentSlug];
-
-        //     projectStudents.push(student);
-        // });
-
-        // rawProject.team.coaches.forEach((coachSlug : string) => {
-        //     let coach = participants[coachSlug];
-        //     projectCoaches.push(coach);
-        // });
-
-        let students = rawProject.team.students
-
-        console.log(students);
-        
         let project = new Project({
             name: rawProject.name,
             description: rawProject.description,
             team: rawProject.team,
-            students: students,
-            coaches: rawProject.team.coaches 
+            students: rawProject.team.students,
+            coaches: rawProject.team.coaches
         });
 
+        await project.populate('students');
+        await project.populate('coaches');
+
         await project.updateOne(project, {upsert: true});
-        
+
         
     }
 }
