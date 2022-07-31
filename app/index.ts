@@ -103,7 +103,7 @@ class Participant {
     
 }
 
-async function main() {
+async function parseData() {
     let twentytwo = await (await fetch('data/2022.json')).json();
 
     twentytwo.participants.forEach((rawParticipant : RawParticipant) => {
@@ -127,4 +127,8 @@ async function main() {
     });
 }
 
-main();
+function displayData() {
+
+}
+
+parseData().then(displayData);
