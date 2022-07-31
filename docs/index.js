@@ -58,6 +58,29 @@ class Participant {
         this.socials = socials;
         this.coach = coach;
     }
+    interactive(topHeader) {
+        let h1 = `h${topHeader}`;
+        let h2 = `h${topHeader + 1}`;
+        let data = `<${h1}>${this.name}</${h1}>`;
+        data += `<${h2}>Projects<${h2}>`;
+        this.projects.forEach((project) => {
+        });
+        let socials = Object.keys(this.socials);
+        if (socials.length > 0) {
+            data += `<${h2}>Socials</${h2}>`;
+            data += `<ul>`;
+            socials.forEach((socialName) => {
+                console.log(socialName);
+                let socialUrl = this.socials[socialName].toString();
+                console.log(socialUrl);
+                let socialUsername = socialUrl.split('/')[3]; //socialUrl.substring(socialUrl.lastIndexOf('/')+1)
+                data += `    <li>${socialName} - 
+                    <a href="${socialUrl}">${socialUsername}</a></li>`;
+            });
+            data += `</ul>`;
+        }
+        return data;
+    }
     get projects() {
         return allProjects.filter((project) => project.team.participants.includes(this));
     }
@@ -76,6 +99,14 @@ function parseData() {
         });
     });
 }
+function print(data) {
+    //document.body.innerHTML = data;
+}
 function displayData() {
+    if (!window.location) {
+        //document.body.innerHTML =     
+    }
+    document.body.innerHTML = allParticipants['cat-catry'].interactive(1);
+    console.log(window.location.search);
 }
 parseData().then(displayData);
