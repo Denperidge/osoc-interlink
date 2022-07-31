@@ -1,6 +1,11 @@
-import mongoose, { connect, disconnect, model, Schema, Document } from 'mongoose';
+import { connect, disconnect, model, Schema, Document } from 'mongoose';
 import axios, { AxiosResponse } from 'axios';
 import { existsSync, readFileSync, writeFile, mkdir } from 'fs';
+import { compile } from 'pug';
+import express from 'express';
+
+const app = express();
+app.set[Symbol]('view engine', 'pug');
 
 // Consts
 const uri : string = 'mongodb://root:example@localhost:27017';
@@ -104,7 +109,7 @@ let partners : { [key:string]: Document} = {};
 let projects : { [key:string]: Document<typeof Project>} = {}
 
 // Do the things
-async function main() {
+async function loadData() {
     // Get data from year
     let data : YearData = await getOsocYear(2022);
 
@@ -154,9 +159,35 @@ async function main() {
     }
 }
 
+app.get('/', (req, res) => {
+    res.send('/project/:name');
+});
+
+app.get('/project/:query', (req, res) => {
+
+});
+
+
+app.get('/student/:query', (req, res) => {
+    
+});
+
+app.get('/coach/:query', (req, res) => {
+    
+});
+
+app.get('/partner/:query', (req, res) => {
+
+});
+
+
+
 // Clean up and exit
 async function exit() {
     await disconnect();
 }
 
-init().then(main).then(exit);
+
+
+
+init().then(loadData);
