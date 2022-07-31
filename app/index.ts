@@ -7,9 +7,9 @@ function slug(value: string){
 }
 
 // Globals
-let partners : {[slug: string]: Partner;} = {};
-let participants : {[slug: string]: Participant;} = {};
-let projects : {[id: string]: Partner;} = {};
+let allPartners : {[slug: string]: Partner;} = {};
+let allParticipants : {[slug: string]: Participant;} = {};
+let allProjects : Array<Project> = [];
 
 // Interface of Team object found in data
 interface RawParticipant {
@@ -63,14 +63,14 @@ class Partner {
 
 
 class Team {
-    private participants: Array<Participant>;
+    participants: Array<Participant>;
 
     constructor(teamIds: RawTeam) {
         this.participants = [];
         let rawParticipants = teamIds.students.concat(teamIds.coaches);
         console.log(rawParticipants)
         rawParticipants.forEach((participantId) => {
-            this.participants.push(participants[participantId]);
+            this.participants.push(allParticipants[participantId]);
         });
     }
     
@@ -94,6 +94,13 @@ class Participant {
         this.socials = socials;
         this.coach = coach;
     }
+
+    
+    
+    get projects() : Array<Project> {
+        return allProjects.filter((project) => project.team.participants.includes(this))
+    }
+    
 }
 
 async function main() {
@@ -101,28 +108,23 @@ async function main() {
 
     twentytwo.participants.forEach((rawParticipant : RawParticipant) => {
         let participant = new Participant(rawParticipant.name, rawParticipant.socials, rawParticipant.coach);
-        participants[participant.id] = participant;
+        allParticipants[participant.id] = participant;
     });
 
-    console.log(participants)
+    console.log(allParticipants)
     console.log('---------')
 
 
     twentytwo.projects.forEach((project: RawProject) => {
-
-        console.log(project.team)
-        
-        projects[project.name] = new Project(
+        allProjects.push(new Project(
             project.name,
             project.description,
             project.team,
             project.repository || '',
             project.partners,
             project.website || ''
-        );
-        console.log(projects[project.name])
+        ));
     });
-    
 }
 
 main();
