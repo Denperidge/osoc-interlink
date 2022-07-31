@@ -1,5 +1,6 @@
 //import twentytwo from './data/2022.json';
 
+const ASSETURL = 'https://raw.githubusercontent.com/opensummerofcode/website/master/public/';
 
 // Functions
 function slug(value: string){
@@ -53,7 +54,10 @@ class Project {
         this.team = new Team(teamIds);
         if (repository) this.repository = new URL (repository);
         if (website) this.website = new URL(website);
-        this.partners = partners;
+        this.partners = [];
+        partners.forEach((partnerId) => {
+            this.partners.push(allPartners[partnerId]);
+        });
     }
 
     interactive(topHeader : number) : string {
@@ -89,9 +93,30 @@ class Project {
     }
 }
 
+interface RawPartner {
+    id: string;
+    name: string;
+    url: string;
+    logo: string;
+}
 
 class Partner {
+    id: string;
+    name: string;
+    url: URL;
+    logo: URL;
 
+    constructor(rawPartner : RawPartner) {
+        this.id = rawPartner.id;
+        this.name = rawPartner.name;
+        this.url = new URL(rawPartner.url);
+        this.logo = new URL(ASSETURL + rawPartner.logo);
+
+    }
+
+    get projects() : Array<Project> {
+        return allProjects.filter((project) => project.partners.includes(this))
+    }
 }
 
 
@@ -179,6 +204,11 @@ async function parseData() {
         allParticipants[participant.id] = participant;
     });
 
+    twentytwo.partners.forEach((rawPartner: RawPartner) => {
+        let partner = new Partner(rawPartner);
+        allPartners[partner.id] = partner;
+    });
+
     twentytwo.projects.forEach((project: RawProject) => {
         allProjects.push(new Project(
             project.name,
@@ -222,6 +252,7 @@ function displayData() {
         
     }
 
+    console.log(allPartners)
 
     
     console.log(window.location.search)
