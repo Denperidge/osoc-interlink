@@ -195,11 +195,26 @@ function print(data : Participant|Project) {
 }
 
 function displayData() {
-    if (!window.location) {
-        //document.body.innerHTML =     
+    let search = window.location.search.substring(1);
+    if (!search) {
+        document.body.innerHTML = allParticipants['cat-catry'].interactive(1);
+    }
+    else {
+        let query = slug(search.substring(search.indexOf('=')+1));  // Remove ? and type=
+        console.log(query);
+        if (search.startsWith('participant')) {
+            document.body.innerHTML = allParticipants[query].interactive(1);
+        }
+        else if (search.startsWith('project')) {
+            let project = allProjects.find((project) => project.id == query);
+            if (project) {
+                document.body.innerHTML = project.interactive(1);
+            }
+        }
+        
     }
 
-    document.body.innerHTML = allParticipants['cat-catry'].interactive(1);
+
     
     console.log(window.location.search)
 }
