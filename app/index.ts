@@ -270,7 +270,8 @@ class Participant {
             socials.forEach((socialName : string) => {
                 if(this.socials[socialName]) {
                     let socialUrl = this.socials[socialName].toString();
-                    let socialUsername = socialUrl.split('/')[3] //socialUrl.substring(socialUrl.lastIndexOf('/')+1)
+                    let socialUrlSplit = socialUrl.split('/').filter((value) => value != '');
+                    let socialUsername = socialUrlSplit[socialUrlSplit.length-1] //socialUrl.substring(socialUrl.lastIndexOf('/')+1)
     
                     data += `    <li>${socialName} - 
                         <a href="${socialUrl}">${socialUsername}</a></li>`;
