@@ -105,6 +105,8 @@ async function download(year) {
      * in the original naming scheme of the OSOC data
      */
     dataString = dataString.replace(/abraham-kakooza/g, 'abraham-jerry-kakooza')
+    // Jodi's most recent id is jodi-deloof, but his old id is jodi-de-loof. So fix that!
+    dataString = dataString.replace(/jodi-de-loof/g, 'jodi-deloof')
  
 
 
