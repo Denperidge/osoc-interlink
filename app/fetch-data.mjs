@@ -54,7 +54,6 @@ async function download(year) {
 
                     data.projects[i].team.students = students;
                 }
-
                 
                 let coaches = project.team.coaches;
                 let coachIndex = coaches.indexOf(oldId);
@@ -64,9 +63,36 @@ async function download(year) {
                     data.projects[i].team.coaches = coaches;
                 }
             });
-            
+        });
+    }
 
+    if (year == 2019) {
+        data.participants.forEach((participant, i) => {
+            let newId = participant.id.replace(/_/g, '-');
+            let oldId = participant.id;
 
+            // Update the id in the participants array
+            data.participants[i].id = newId;
+
+            // Update the id in projects
+            data.projects.forEach((project, i) => {
+                let students = project.team.students;
+                let studentIndex = students.indexOf(oldId);
+
+                if (studentIndex > -1) {
+                    students[students.indexOf(oldId)] = newId;
+
+                    data.projects[i].team.students = students;
+                }
+                
+                let coaches = project.team.coaches;
+                let coachIndex = coaches.indexOf(oldId);
+
+                if (coachIndex > -1) {
+                    coaches[coachIndex] = newId;
+                    data.projects[i].team.coaches = coaches;
+                }
+            });
         });
     }
 
