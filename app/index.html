@@ -11,6 +11,13 @@
         img {
             width: 200px;
         }
+        @media (min-width: 992px) {
+            /* Fix a pico thing that would squish Participants together if with too many people */
+            .grid {
+                grid-template-columns: repeat(auto-fit,minmax(20%,1fr));
+
+            }
+        }
         article {
             text-align: center;
         }
