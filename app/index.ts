@@ -5,7 +5,7 @@ const ASSETURL = 'https://raw.githubusercontent.com/opensummerofcode/website/mas
 // Functions
 function slug(value: string){
     // Accent removal source: https://stackoverflow.com/a/37511463
-    return value.toLowerCase().replace(/ /g, '-').normalize('NFD').replace(/\p{Diacritic}/gu, '');
+    return value.toLowerCase().replace(/-/g, '').replace(/\s\s/g, ' ').replace(/ /g, '-').normalize('NFD').replace(/\p{Diacritic}/gu, '');
 }
 
 // Globals
@@ -43,6 +43,7 @@ class Project {
         //if (website instanceof ) website = 
         this.year = year;
         this.id = slug(name)
+        console.log(this.id)
         this.name = name;
         this.description = description;
         this.team = new Team(teamIds);
