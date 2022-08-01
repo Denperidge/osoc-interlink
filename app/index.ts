@@ -59,7 +59,7 @@ class Project {
         return `${ASSETURL}/editions/${this.year}/projects/${this.id}.svg`;
     }
 
-    interactive(topHeader : number) : string {
+    toHTML(topHeader : number, expand=true) : string {
         let h1 = `h${topHeader}`;
         let h2 = `h${topHeader+1}`;
         let h3 = `h${topHeader+2}`;
@@ -165,7 +165,7 @@ class Partner {
     }
 
     
-    interactive(topHeader : number) : string {
+    toHTML(topHeader : number, expand=true) : string {
         let h1 = `h${topHeader}`;
         let h2 = `h${topHeader+1}`;
         
@@ -216,7 +216,7 @@ class Participant {
         this.coach = coach || false;
     }
 
-    interactive(topHeader : number) : string {
+    toHTML(topHeader : number) : string {
         let h1 = `h${topHeader}`;
         let h2 = `h${topHeader+1}`;
 
@@ -304,7 +304,7 @@ function displayData() {
         let data = '';
         allProjects.forEach((project) => {
             console.log(project.name)
-            data += project.interactive(2);
+            data += project.toHTML(2);
             data += '<br><hr><br>'
         })
         document.body.innerHTML = data;
@@ -313,16 +313,16 @@ function displayData() {
         let query = slug(search.substring(search.indexOf('=')+1));  // Remove ? and type=
         console.log(query);
         if (search.startsWith('participant')) {
-            document.body.innerHTML = allParticipants[query].interactive(1);
+            document.body.innerHTML = allParticipants[query].toHTML(1);
         }
         else if (search.startsWith('project')) {
             let project = allProjects.find((project) => project.id == query);
             if (project) {
-                document.body.innerHTML = project.interactive(1);
+                document.body.innerHTML = project.toHTML(1);
             }
         }
         else if (search.startsWith('partner')) {
-            document.body.innerHTML = allPartners[query].interactive(1);
+            document.body.innerHTML = allPartners[query].toHTML(1);
         }
         
     }
