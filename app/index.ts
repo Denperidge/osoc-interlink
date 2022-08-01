@@ -13,7 +13,7 @@ function cards (objects : Array<{card: Function}>) : string {
     objects.forEach((object) => cardHTML += object.card())
 
     cardHTML+= '</div>'
-    return cardHTML
+    return cardHTML;
 }
 
 // Globals
@@ -345,9 +345,7 @@ function displayData() {
     if (!search) {
         let data = '';
         allProjects.forEach((project) => {
-            console.log(project.name)
-            data += project.toHTML(2);
-            data += '<br><hr><br>'
+            data += `<section>${project.toHTML(2)}</section><hr>`;
         })
         document.body.innerHTML = data;
     }
