@@ -20,7 +20,16 @@ async function download(year) {
 
     console.log("-------")
     console.log(data);
-    writeFileSync(`${baseDir}/${year}.json`, JSON.stringify(data), {encoding: 'utf-8'});
+    let dataString = JSON.stringify(data);
+    /**
+     * I know this looks oddly specific, but its just a (seemingly) inconsistency
+     * in the original naming scheme of the OSOC data
+     */
+    dataString = dataString.replace(/abraham-kakooza/g, 'abraham-jerry-kakooza')
+ 
+
+
+    writeFileSync(`${baseDir}/${year}.json`, dataString, {encoding: 'utf-8'});
 
     
 }

@@ -248,14 +248,6 @@ class Participant {
 
         this.id = slug(name)
 
-        /**
-         * I know this looks oddly specific, but its just a (seemingly) inconsistency
-         * in the original naming scheme of the OSOC data
-         */
-        if (this.id == 'abraham-kakooza') {
-            this.id = 'abraham-jerry-kakooza';
-        }
-
         this.name = name;
         this.socials = socials;
         this.coach = coach || false;
