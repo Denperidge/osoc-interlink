@@ -90,6 +90,6 @@ async function download(year) {
 
 
 
-[2022, 2021, 2020].forEach((year) => {
+[2022, 2021, 2020, 2019].forEach((year) => {
     console.log(download(year));
 });

@@ -332,7 +332,7 @@ class Participant {
  * - And saves them globally ( @see allParticipants | @see allProjects | @see allPartners )
  */
 async function parseData() {
-    let years = [2022, 2021, 2020];  // Set the newest year first, as this will create the base Participant
+    let years = [2022, 2021, 2020, 2019];  // Set the newest year first, as this will create the base Participant
 
     for (let i = 0; i < years.length; i++) {
 
