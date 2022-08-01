@@ -204,8 +204,8 @@ class Participant {
     socials: {[key: string]: URL};
     coach: boolean;
 
-    get logo() : string {
-        return `${ASSETURL}/editions/${this.year}/participants/${this.id}.svg`;
+    get image() : string {
+        return `${ASSETURL}/editions/${this.year}/participants/${this.id}.jpg`;
     }
 
     constructor (year : number, name : string, socials: {[key: string]: URL}, coach : boolean) {
@@ -221,6 +221,8 @@ class Participant {
         let h2 = `h${topHeader+1}`;
 
         let data = `<${h1}>${this.name}</${h1}>`;
+
+        data += `<img alt="Photo of ${this.name}" src="${this.image}" />`;
         
         data += `<${h2}>Projects</${h2}><ul>`;
         this.projects.forEach((project) => {
