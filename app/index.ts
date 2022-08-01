@@ -99,12 +99,12 @@ class Project {
         return data;
     }
 
-    card(topHeader : number) : string {
+    card() : string {
         let data = `
         <article>
             <header>${this.name}</header>
-            <p class="card-content">
-                <!--<img alt="logo for ${this.name}" src="${this.logo}" />-->
+            <img alt="logo for ${this.name}" src="${this.logo}" />
+            <p>
                 ${this.description}
             </p>
             <footer>
@@ -245,7 +245,7 @@ class Participant {
         
         data += `<${h2}>Projects</${h2}>`;
         data += '<div class="grid">';
-        this.projects.forEach((project) => { data += project.card(topHeader+2)}); 
+        this.projects.forEach((project) => { data += project.card()}); 
         data += '</div>';
         /*
         this.projects.forEach((project) => {
