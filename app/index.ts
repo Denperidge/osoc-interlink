@@ -41,6 +41,7 @@ interface RawProject {
     name: string;
     description: string;
     team: RawTeam,
+    logo?: string,
     repository?: string,
     website?: string,
     partners: Array<string>
@@ -50,6 +51,7 @@ class Project {
     id: string;
     name: string;
     description: string;
+    logo: string;
     team: Team;
     repository?: URL;
     website?: URL;
@@ -66,16 +68,16 @@ class Project {
         this.name = rawProject.name;
         this.description = rawProject.description;
         this.team = new Team(rawProject.team);
+
         if (rawProject.repository) this.repository = new URL (rawProject.repository);
         if (rawProject.website) this.website = new URL(rawProject.website);
         this.partners = [];
         rawProject.partners.forEach((partnerId) => {
             this.partners.push(allPartners[partnerId]);
         });
-    }
 
-    get logo() : string {
-        return `${ASSETURL}/editions/${this.year}/projects/${this.id}.svg`;
+        if (rawProject.logo) this.logo = `${ASSETURL}/${rawProject.logo}`
+        else this.logo = `${ASSETURL}/editions/${this.year}/projects/${this.id}.svg`;
     }
 
     toHTML(topHeader : number) : string {
