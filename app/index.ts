@@ -65,7 +65,7 @@ class Project {
         if (rawProject.id) this.id= rawProject.id
         else this.id = slug(rawProject.name)
 
-        this.name = rawProject.name;
+        this.name = rawProject.name;    
         this.description = rawProject.description;
         this.team = new Team(rawProject.team);
 
@@ -143,29 +143,23 @@ interface RawTeam {
 }
 // Teams after being parsed.
 class Team {
-    participants: Array<Participant>;
+    students: Array<Participant>;
+    coaches: Array<Participant>;
 
     constructor(teamIds: RawTeam) {
-        this.participants = [];
-        let rawParticipants = teamIds.students.concat(teamIds.coaches);
+        this.students = [];
+        this.coaches = [];
         
-        rawParticipants.forEach((participantId) => {
-            if (!allParticipants[participantId]) {
-                console.log("=============")
-                console.log(participantId);
-                console.log("=============")
-
-            }
-            this.participants.push(allParticipants[participantId]);
+        teamIds.students.forEach((participantId) => {
+            this.students.push(allParticipants[participantId]);
+        });
+        teamIds.coaches.forEach((participantId) => {
+            this.coaches.push(allParticipants[participantId]);
         });
     }
     
-    get students() : Array<Participant> {
-        return this.participants.filter((participant) => participant.coach == false);
-    }
-    get coaches() {
-        console.log(this.participants)
-        return this.participants.filter((participant) => participant.coach == true);
+    get participants() : Array<Participant> {
+        return this.students.concat(this.coaches)
     }
 }
 
@@ -239,7 +233,7 @@ interface RawParticipant {
     id?: string;
     name: string;
     socials: {[key: string]: URL};
-    coach: boolean;
+    //coach: boolean;
     mugshot?: string;
 }
 
@@ -248,7 +242,7 @@ class Participant {
     id: string;
     name: string;
     socials: {[key: string]: URL};
-    coach: boolean;
+    //coach: boolean;
     image : string;
 
     constructor (year : number, rawParticipant : RawParticipant) {
@@ -259,7 +253,7 @@ class Participant {
 
         this.name = rawParticipant.name;
         this.socials = rawParticipant.socials;
-        this.coach = rawParticipant.coach || false;
+        //this.coach = rawParticipant.coach || false;
 
         if (!rawParticipant.mugshot) this.image = `${ASSETURL}/editions/${this.year}/participants/${this.id}.jpg`;
         else this.image = `${ASSETURL}/${rawParticipant.mugshot}`;
