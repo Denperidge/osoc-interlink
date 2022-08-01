@@ -3,10 +3,9 @@
 const ASSETURL = 'https://raw.githubusercontent.com/opensummerofcode/website/master/public/';
 
 // Functions
-function slug(value: string, removeAccents=true){
+function slug(value: string){
     // Accent removal source: https://stackoverflow.com/a/37511463
-    value = value.toLowerCase().replace(/--/g, '-').replace(/\s\s/g, ' ').replace(/ /g, '-');
-    if (removeAccents) value = value.normalize('NFD').replace(/\p{Diacritic}/gu, '');
+    value = value.toLowerCase().replace(/--/g, '-').replace(/'/g, '-').replace(/\s\s/g, ' ').replace(/ /g, '-').normalize('NFD').replace(/\p{Diacritic}/gu, '');
     return value;
 }
 
@@ -154,7 +153,10 @@ class Team {
     }
     get coaches() {
         console.log(this.participants)
-        return this.participants.filter((participant) => participant.coach == true);
+        return this.participants.filter((participant) => {
+            if (!participant){console.error('Participant not found')} 
+            participant.coach == true
+        });
     }
 }
 
@@ -244,9 +246,15 @@ class Participant {
     constructor (year : number, name : string, socials: {[key: string]: URL}, coach : boolean) {
         this.year = year; 
 
-        let removeAccents = true;
-        if (year == 2021) removeAccents = false;
-        this.id = slug(name, removeAccents)
+        this.id = slug(name)
+
+        /**
+         * I know this looks oddly specific, but its just a (seemingly) inconsistency
+         * in the original naming scheme of the OSOC data
+         */
+        if (this.id == 'abraham-kakooza') {
+            this.id = 'abraham-jerry-kakooza';
+        }
 
         this.name = name;
         this.socials = socials;
