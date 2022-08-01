@@ -180,7 +180,7 @@ class Partner {
         this.id = rawPartner.id;
         this.name = rawPartner.name;
         if (rawPartner.url) this.url = new URL(rawPartner.url);
-        this.logo = new URL(ASSETURL + rawPartner.logo);
+        this.logo = new URL((ASSETURL + rawPartner.logo).replace(/\/\//, '/'));
 
     }
 
@@ -227,6 +227,7 @@ class Partner {
  * Can be coaches and/or students
  */
 interface RawParticipant {
+    id?: string;
     name: string;
     socials: {[key: string]: URL};
     coach: boolean;
@@ -244,7 +245,8 @@ class Participant {
     constructor (year : number, rawParticipant : RawParticipant) {
         this.year = year; 
 
-        this.id = slug(rawParticipant.name)
+        if (rawParticipant.id) this.id = rawParticipant.id;
+        else this.id = slug(rawParticipant.name);
 
         this.name = rawParticipant.name;
         this.socials = rawParticipant.socials;
@@ -321,7 +323,7 @@ class Participant {
  * - And saves them globally ( @see allParticipants | @see allProjects | @see allPartners )
  */
 async function parseData() {
-    let years = [2022, 2021];  // Set the newest year first, as this will create the base Participant
+    let years = [2022, 2021, 2020];  // Set the newest year first, as this will create the base Participant
 
     for (let i = 0; i < years.length; i++) {
 
