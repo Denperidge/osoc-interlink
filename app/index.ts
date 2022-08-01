@@ -98,6 +98,25 @@ class Project {
 
         return data;
     }
+
+    card(topHeader : number) : string {
+        let data = `
+        <div class="card">
+            <h${topHeader} class="card-header">${this.name}</h${topHeader}>
+            <p class="card-content">
+                <!--<img alt="logo for ${this.name}" src="${this.logo}" />-->
+                ${this.description}
+            </p>
+            <div class="card-footer">
+                <a href="?project=${this.id}">View</a>
+            </div>
+        </div>
+        `;
+
+
+
+        return data;
+    }
 }
 /**
  * ==================== Teams ====================
@@ -224,11 +243,16 @@ class Participant {
 
         data += `<img alt="Photo of ${this.name}" src="${this.image}" />`;
         
-        data += `<${h2}>Projects</${h2}><ul>`;
+        data += `<${h2}>Projects</${h2}>`;
+        data += '<div class="cards">';
+        this.projects.forEach((project) => { data += project.card(topHeader+2)}); 
+        data += '</div>';
+        /*
         this.projects.forEach((project) => {
             data += `<li><a href="?project=${project.id}">${project.name}</a>`
         });
         data += '</ul>'
+        */
 
         let socials = Object.keys(this.socials);
         if (socials.length > 0) {
