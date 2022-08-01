@@ -8,6 +8,14 @@ function slug(value: string){
     return value.toLowerCase().replace(/--/g, '-').replace(/\s\s/g, ' ').replace(/ /g, '-').normalize('NFD').replace(/\p{Diacritic}/gu, '');
 }
 
+function cards (objects : Array<{card: Function}>) : string {
+    let cardHTML = '<div class="grid">'
+    objects.forEach((object) => cardHTML += object.card())
+
+    cardHTML+= '</div>'
+    return cardHTML
+}
+
 // Globals
 let allPartners : {[slug: string]: Partner;} = {};
 let allParticipants : {[slug: string]: Participant;} = {};
@@ -59,7 +67,7 @@ class Project {
         return `${ASSETURL}/editions/${this.year}/projects/${this.id}.svg`;
     }
 
-    toHTML(topHeader : number, expand=true) : string {
+    toHTML(topHeader : number) : string {
         let h1 = `h${topHeader}`;
         let h2 = `h${topHeader+1}`;
         let h3 = `h${topHeader+2}`;
@@ -78,29 +86,21 @@ class Project {
 
         data += `<${h2}>Team</${h2}>`;
         
-        data += `<${h3}>Coaches:</${h3}><ul>`;
-        this.team.coaches.forEach((participant) => {
-            data += `<li><a href="?participant=${participant.id}">${participant.name}</a>`
-        });
-        data += '</ul>'
+        data += `<${h3}>Coaches:</${h3}>`;
+        data += cards(this.team.coaches)
 
-        data += `<${h3}>Students:</${h3}><ul>`;
-        this.team.students.forEach((participant) => {
-            data += `<li><a href="?participant=${participant.id}">${participant.name}</a>`
-        });
-        data += '</ul>'
+        data += `<${h3}>Students:</${h3}>`;
+        data += cards(this.team.students);
 
-        data += `<${h3}>Partners:</${h3}><ul>`;
-        this.partners.forEach((partner) => {
-            data += `<li><a href="?partner=${partner.id}">${partner.name}</a>`
-        });
-        data += '</ul>'
+        data += `<${h3}>Partners:</${h3}>`;
+        data += cards(this.partners);
 
         return data;
     }
 
     card() : string {
         let data = `
+        <a href="?project=${this.id}">
         <article>
             <header>${this.name}</header>
             <img alt="logo for ${this.name}" src="${this.logo}" />
@@ -108,9 +108,10 @@ class Project {
                 ${this.description}
             </p>
             <footer>
-                <a href="?project=${this.id}">View</a>
+                
             </footer>
         </article>
+        </a>
         `;
 
 
@@ -183,6 +184,18 @@ class Partner {
         return allProjects.filter((project) => project.partners.includes(this))
     }
 
+    card() : string {
+        let data = `
+        <a href="?participant=${this.id}">
+        <article>
+            <header>${this.name}</header>
+            <img alt="Picture of ${this.name}" src="${this.logo}" />
+        </article>
+        </a>
+        `
+        return data;
+    }
+
     
     toHTML(topHeader : number, expand=true) : string {
         let h1 = `h${topHeader}`;
@@ -194,11 +207,10 @@ class Partner {
         data += `<p>Website: <a href="${this.url}">${this.url}</a></p>`;
                    
         
-        data += `<${h2}>Projects</${h2}><ul>`;
+        data += `<${h2}>Projects</${h2}>`;
         this.projects.forEach((project) => {
-            data += `<li><a href="?project=${project.id}">${project.name}</a>`
+            data +=project.card()
         });
-        data += '</ul>'
 
         return data;
     }
@@ -247,12 +259,6 @@ class Participant {
         data += '<div class="grid">';
         this.projects.forEach((project) => { data += project.card()}); 
         data += '</div>';
-        /*
-        this.projects.forEach((project) => {
-            data += `<li><a href="?project=${project.id}">${project.name}</a>`
-        });
-        data += '</ul>'
-        */
 
         let socials = Object.keys(this.socials);
         if (socials.length > 0) {
@@ -269,6 +275,18 @@ class Participant {
             data += `</ul>`;
         }
         
+        return data;
+    }
+
+    card() : string {
+        let data = `
+        <a href="?participant=${this.id}">
+        <article>
+            <header>${this.name}</header>
+            <img alt="Picture of ${this.name}" src="${this.image}" />
+        </article>
+        </a>
+        `
         return data;
     }
     
