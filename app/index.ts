@@ -5,7 +5,8 @@ const ASSETURL = 'https://raw.githubusercontent.com/opensummerofcode/website/mas
 // Functions
 function slug(value: string){
     // Accent removal source: https://stackoverflow.com/a/37511463
-    value = value.toLowerCase().replace(/--/g, '-').replace(/'/g, '-').replace(/\s\s/g, ' ').replace(/ /g, '-').normalize('NFD').replace(/\p{Diacritic}/gu, '');
+    value = value.toLowerCase().replace(/'/g, '-').replace(/\s\s/g, ' ').replace(/ /g, '-').normalize('NFD').replace(/\p{Diacritic}/gu, '');
+    while (value.includes('--')) value = value.replace(/--/g, '-');  // Darn you, double dashes
     return value;
 }
 
