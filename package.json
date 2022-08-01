@@ -4,7 +4,7 @@
   "description": "Interlinking all the data on the opensummerofcode website",
   "main": "index.js",
   "scripts": {
-    "build": "node app/fetch-data.mjs && cp app/vendor/wing.min.css build/vendor/wing.min.css && cp app/index.html build/ && npx tsc",
+    "build": "node app/fetch-data.mjs && cp app/index.html build/ && npx tsc",
     "postinstall": "npm run build",
     "watch": "npx tsc -w -p .",
     "start": "npm run build && npx light-server -s ./build -w ./build/*",
