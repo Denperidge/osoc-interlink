@@ -32,15 +32,16 @@ class Project {
     id: string;
     name: string;
     description: string;
-    logo?: URL;
     team: Team;
     repository?: URL;
     website?: URL;
     partners: Array<Partner>;
+    year: number;
 
     // Contsructor based off the json impelementation for the website
-    constructor(name : string, description : string, teamIds: RawTeam, repository: string|URL, partners : Array<string>, website?: string|URL) {
+    constructor(year: number, name : string, description : string, teamIds: RawTeam, repository: string|URL, partners : Array<string>, website?: string|URL) {
         //if (website instanceof ) website = 
+        this.year = year;
         this.id = slug(name)
         this.name = name;
         this.description = description;
@@ -53,6 +54,10 @@ class Project {
         });
     }
 
+    get logo() : string {
+        return `${ASSETURL}/editions/${this.year}/projects/${this.id}.svg`;
+    }
+
     interactive(topHeader : number) : string {
         let h1 = `h${topHeader}`;
         let h2 = `h${topHeader+1}`;
@@ -60,6 +65,8 @@ class Project {
         
 
         let data = `<${h1}>${this.name}</${h1}><p>${this.description}</p>`;
+
+        data += `<img alt="logo for ${this.name}" src="${this.logo}" />`;
         
         if (this.repository || this.website) {
             data += '<ul>';
@@ -265,6 +272,7 @@ async function parseData() {
 
     twentytwo.projects.forEach((project: RawProject) => {
         allProjects.push(new Project(
+            2022,
             project.name,
             project.description,
             project.team,
