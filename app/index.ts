@@ -70,7 +70,7 @@ class Project {
         data += `<img alt="logo for ${this.name}" src="${this.logo}" />`;
         
         if (this.repository || this.website) {
-            data += '<ul>';
+            data += '<ul class="nes-list is-disc">';
             if (this.repository) data += `<li>Repository: <a href=${this.repository.toString()}">${this.repository.toString()}</a></li>`;
             if (this.website) data += `<li>Website: <a href=${this.website.toString()}">${this.website.toString()}</a></li>`;
             data += '</ul>'
