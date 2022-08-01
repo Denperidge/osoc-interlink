@@ -228,6 +228,7 @@ interface RawParticipant {
     name: string;
     socials: {[key: string]: URL};
     coach: boolean;
+    mugshot?: string;
 }
 
 class Participant {
@@ -236,19 +237,19 @@ class Participant {
     name: string;
     socials: {[key: string]: URL};
     coach: boolean;
+    image : string;
 
-    get image() : string {
-        return `${ASSETURL}/editions/${this.year}/participants/${this.id}.jpg`;
-    }
-
-    constructor (year : number, name : string, socials: {[key: string]: URL}, coach : boolean) {
+    constructor (year : number, rawParticipant : RawParticipant) {
         this.year = year; 
 
-        this.id = slug(name)
+        this.id = slug(rawParticipant.name)
 
-        this.name = name;
-        this.socials = socials;
-        this.coach = coach || false;
+        this.name = rawParticipant.name;
+        this.socials = rawParticipant.socials;
+        this.coach = rawParticipant.coach || false;
+
+        if (!rawParticipant.mugshot) this.image = `${ASSETURL}/editions/${this.year}/participants/${this.id}.jpg`;
+        else this.image = `${ASSETURL}/${rawParticipant.mugshot}`;
     }
 
     toHTML(topHeader : number) : string {
@@ -326,7 +327,7 @@ async function parseData() {
         let data = await (await fetch(`data/${year}.json`)).json();
 
         data.participants.forEach((rawParticipant : RawParticipant) => {
-            let participant = new Participant(year, rawParticipant.name, rawParticipant.socials, rawParticipant.coach);
+            let participant = new Participant(year, rawParticipant);
             //
             if (!allParticipants[participant.id]) allParticipants[participant.id] = participant;
             else {
