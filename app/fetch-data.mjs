@@ -28,6 +28,6 @@ async function download(year) {
 
 
 
-[2022].forEach((year) => {
+[2022, 2021].forEach((year) => {
     console.log(download(year));
 });

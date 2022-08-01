@@ -3,9 +3,11 @@
 const ASSETURL = 'https://raw.githubusercontent.com/opensummerofcode/website/master/public/';
 
 // Functions
-function slug(value: string){
+function slug(value: string, removeAccents=true){
     // Accent removal source: https://stackoverflow.com/a/37511463
-    return value.toLowerCase().replace(/--/g, '-').replace(/\s\s/g, ' ').replace(/ /g, '-').normalize('NFD').replace(/\p{Diacritic}/gu, '');
+    value = value.toLowerCase().replace(/--/g, '-').replace(/\s\s/g, ' ').replace(/ /g, '-');
+    if (removeAccents) value = value.normalize('NFD').replace(/\p{Diacritic}/gu, '');
+    return value;
 }
 
 function cards (objects : Array<{card: Function}>) : string {
@@ -169,13 +171,13 @@ interface RawPartner {
 class Partner {
     id: string;
     name: string;
-    url: URL;
+    url?: URL;
     logo: URL;
 
     constructor(rawPartner : RawPartner) {
         this.id = rawPartner.id;
         this.name = rawPartner.name;
-        this.url = new URL(rawPartner.url);
+        if (rawPartner.url) this.url = new URL(rawPartner.url);
         this.logo = new URL(ASSETURL + rawPartner.logo);
 
     }
@@ -241,7 +243,11 @@ class Participant {
 
     constructor (year : number, name : string, socials: {[key: string]: URL}, coach : boolean) {
         this.year = year; 
-        this.id = slug(name);
+
+        let removeAccents = true;
+        if (year == 2021) removeAccents = false;
+        this.id = slug(name, removeAccents)
+
         this.name = name;
         this.socials = socials;
         this.coach = coach || false;
@@ -265,11 +271,15 @@ class Participant {
             data += `<${h2}>Socials</${h2}>`
             data += `<ul>`;
             socials.forEach((socialName : string) => {
-                let socialUrl = this.socials[socialName].toString();
-                let socialUsername = socialUrl.split('/')[3] //socialUrl.substring(socialUrl.lastIndexOf('/')+1)
+                if(this.socials[socialName]) {
+                    let socialUrl = this.socials[socialName].toString();
+                    let socialUsername = socialUrl.split('/')[3] //socialUrl.substring(socialUrl.lastIndexOf('/')+1)
+    
+                    data += `    <li>${socialName} - 
+                        <a href="${socialUrl}">${socialUsername}</a></li>`;
+                }
 
-                data += `    <li>${socialName} - 
-                    <a href="${socialUrl}">${socialUsername}</a></li>`;
+
             })
 
             data += `</ul>`;
@@ -309,30 +319,40 @@ class Participant {
  * - And saves them globally ( @see allParticipants | @see allProjects | @see allPartners )
  */
 async function parseData() {
-    let twentytwo = await (await fetch('data/2022.json')).json();
+    let years = [2022, 2021];  // Set the newest year first, as this will create the base Participant
 
-    twentytwo.participants.forEach((rawParticipant : RawParticipant) => {
-        let participant = new Participant(2022, rawParticipant.name, rawParticipant.socials, rawParticipant.coach);
-        console.log(participant.id)
-        allParticipants[participant.id] = participant;
-    });
+    for (let i = 0; i < years.length; i++) {
 
-    twentytwo.partners.forEach((rawPartner: RawPartner) => {
-        let partner = new Partner(rawPartner);
-        allPartners[partner.id] = partner;
-    });
+        let year = years[i];
+        let data = await (await fetch(`data/${year}.json`)).json();
 
-    twentytwo.projects.forEach((project: RawProject) => {
-        allProjects.push(new Project(
-            2022,
-            project.name,
-            project.description,
-            project.team,
-            project.repository || '',
-            project.partners,
-            project.website || ''
-        ));
-    });
+        data.participants.forEach((rawParticipant : RawParticipant) => {
+            let participant = new Participant(year, rawParticipant.name, rawParticipant.socials, rawParticipant.coach);
+            //
+            if (!allParticipants[participant.id]) allParticipants[participant.id] = participant;
+            else {
+                //allParticipants[participant.id].projects = allParticipants[participant.id].projects.concat(participant.projects);
+            }
+        });
+
+        data.partners.forEach((rawPartner: RawPartner) => {
+            let partner = new Partner(rawPartner);
+            allPartners[partner.id] = partner;
+        });
+
+        data.projects.forEach((project: RawProject) => {
+            allProjects.push(new Project(
+                year,
+                project.name,
+                project.description,
+                project.team,
+                project.repository || '',
+                project.partners,
+                project.website || ''
+            ));
+        });
+        console.log("====> " + year.toString())
+    }
 }
 
 /**
@@ -341,6 +361,8 @@ async function parseData() {
  * - If there is a query, check what is being queried, and display it interactively
  */
 function displayData() {
+    console.log('dsipl')
+
     let search = window.location.search.substring(1);
     if (!search) {
         let data = '';
