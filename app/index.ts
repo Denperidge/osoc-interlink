@@ -30,11 +30,12 @@ let allProjects : Array<Project> = [];
  */
 // Projects as structured in the OSOC JSON files
 interface RawProject {
+    id?: string
     name: string;
     description: string;
     team: RawTeam,
-    repository: string,
-    website: string,
+    repository?: string,
+    website?: string,
     partners: Array<string>
 }
 // Projects after being parsed
@@ -49,18 +50,19 @@ class Project {
     year: number;
 
     // Contsructor based off the json impelementation for the website
-    constructor(year: number, name : string, description : string, teamIds: RawTeam, repository: string|URL, partners : Array<string>, website?: string|URL) {
+    constructor(year: number, rawProject : RawProject) {
         //if (website instanceof ) website = 
         this.year = year;
-        this.id = slug(name)
-        console.log(this.id)
-        this.name = name;
-        this.description = description;
-        this.team = new Team(teamIds);
-        if (repository) this.repository = new URL (repository);
-        if (website) this.website = new URL(website);
+        if (rawProject.id) this.id= rawProject.id
+        else this.id = slug(rawProject.name)
+
+        this.name = rawProject.name;
+        this.description = rawProject.description;
+        this.team = new Team(rawProject.team);
+        if (rawProject.repository) this.repository = new URL (rawProject.repository);
+        if (rawProject.website) this.website = new URL(rawProject.website);
         this.partners = [];
-        partners.forEach((partnerId) => {
+        rawProject.partners.forEach((partnerId) => {
             this.partners.push(allPartners[partnerId]);
         });
     }
@@ -341,15 +343,7 @@ async function parseData() {
         });
 
         data.projects.forEach((project: RawProject) => {
-            allProjects.push(new Project(
-                year,
-                project.name,
-                project.description,
-                project.team,
-                project.repository || '',
-                project.partners,
-                project.website || ''
-            ));
+            allProjects.push(new Project(year, project));
         });
         console.log("====> " + year.toString())
     }
