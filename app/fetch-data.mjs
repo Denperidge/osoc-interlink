@@ -6,6 +6,7 @@ const baseUrl = 'https://raw.githubusercontent.com/opensummerofcode/website/mast
 
 
 mkdirSync(baseDir, {recursive: true});
+mkdirSync(baseDir.replace('data', 'vendor'), {recursive: true});  // this is for the css
 
 // Combine all data into one file
 async function download(year) {
