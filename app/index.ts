@@ -18,6 +18,13 @@ function cards (objects : Array<{card: Function}>) : string {
     return cardHTML;
 }
 
+function display(html : string) : void {
+    let body = document.body;
+    let main = body.getElementsByTagName('main');
+    if (main.length > 0) main[0].innerHTML = html;
+    else body.innerHTML = html;
+}
+
 // Globals
 let allPartners : {[slug: string]: Partner;} = {};
 let allParticipants : {[slug: string]: Participant;} = {};
@@ -365,22 +372,22 @@ function displayData() {
         allProjects.forEach((project) => {
             data += `<section>${project.toHTML(2)}</section><hr>`;
         })
-        document.body.innerHTML = data;
+        display(data);
     }
     else {
         let query = slug(search.substring(search.indexOf('=')+1));  // Remove ? and type=
         console.log(query);
         if (search.startsWith('participant')) {
-            document.body.innerHTML = allParticipants[query].toHTML(1);
+            display(allParticipants[query].toHTML(1));
         }
         else if (search.startsWith('project')) {
             let project = allProjects.find((project) => project.id == query);
             if (project) {
-                document.body.innerHTML = project.toHTML(1);
+                display(project.toHTML(1));
             }
         }
         else if (search.startsWith('partner')) {
-            document.body.innerHTML = allPartners[query].toHTML(1);
+            display(allPartners[query].toHTML(1));
         }
         
     }
