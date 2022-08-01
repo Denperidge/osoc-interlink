@@ -5,7 +5,7 @@ const ASSETURL = 'https://raw.githubusercontent.com/opensummerofcode/website/mas
 // Functions
 function slug(value: string){
     // Accent removal source: https://stackoverflow.com/a/37511463
-    return value.toLowerCase().replace(/-/g, '').replace(/\s\s/g, ' ').replace(/ /g, '-').normalize('NFD').replace(/\p{Diacritic}/gu, '');
+    return value.toLowerCase().replace(/--/g, '-').replace(/\s\s/g, ' ').replace(/ /g, '-').normalize('NFD').replace(/\p{Diacritic}/gu, '');
 }
 
 // Globals
@@ -198,12 +198,18 @@ interface RawParticipant {
 }
 
 class Participant {
+    year: number;
     id: string;
     name: string;
     socials: {[key: string]: URL};
     coach: boolean;
 
-    constructor (name: string, socials: {[key: string]: URL}, coach : boolean) {
+    get logo() : string {
+        return `${ASSETURL}/editions/${this.year}/participants/${this.id}.svg`;
+    }
+
+    constructor (year : number, name : string, socials: {[key: string]: URL}, coach : boolean) {
+        this.year = year; 
         this.id = slug(name);
         this.name = name;
         this.socials = socials;
@@ -262,7 +268,8 @@ async function parseData() {
     let twentytwo = await (await fetch('data/2022.json')).json();
 
     twentytwo.participants.forEach((rawParticipant : RawParticipant) => {
-        let participant = new Participant(rawParticipant.name, rawParticipant.socials, rawParticipant.coach);
+        let participant = new Participant(2022, rawParticipant.name, rawParticipant.socials, rawParticipant.coach);
+        console.log(participant.id)
         allParticipants[participant.id] = participant;
     });
 
