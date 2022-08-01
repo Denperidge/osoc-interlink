@@ -153,10 +153,7 @@ class Team {
     }
     get coaches() {
         console.log(this.participants)
-        return this.participants.filter((participant) => {
-            if (!participant){console.error('Participant not found')} 
-            participant.coach == true
-        });
+        return this.participants.filter((participant) => participant.coach == true);
     }
 }
 
