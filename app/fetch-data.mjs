@@ -104,10 +104,10 @@ async function download(year) {
      * I know this looks oddly specific, but its just a (seemingly) inconsistency
      * in the original naming scheme of the OSOC data
      */
-    dataString = dataString.replace(/abraham-kakooza/g, 'abraham-jerry-kakooza')
+    dataString = dataString.replace(/abraham-kakooza/g, 'abraham-jerry-kakooza');
     // Jodi's most recent id is jodi-deloof, but his old id is jodi-de-loof. So fix that!
-    dataString = dataString.replace(/jodi-de-loof/g, 'jodi-deloof')
- 
+    dataString = dataString.replace(/jodi-de-loof/g, 'jodi-deloof');
+    dataString = dataString.replace(/carlos-ruiz-herrera/g, 'carlos-emiliano-ruiz-herrera');
 
 
     writeFileSync(`${baseDir}/${year}.json`, dataString, {encoding: 'utf-8'});
