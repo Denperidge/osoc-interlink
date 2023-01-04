@@ -193,7 +193,7 @@ class Partner {
 
     card() : string {
         let data = `
-        <a href="?participant=${this.id}">
+        <a href="?partner=${this.id}">
         <article>
             <header>${this.name}</header>
             <img alt="Picture of ${this.name}" src="${this.logo}" />
